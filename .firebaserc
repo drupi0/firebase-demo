@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "test-app-84327": {
+      "hosting": {
+        "firebase-demo": [
+          "test-app-84327"
+        ]
+      }
+    }
+  }
+}

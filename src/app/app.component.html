@@ -1,0 +1,25 @@
+<div class="menu">
+  <div class="left">Freedom Board</div>
+  <div>
+    <button>Log Out</button>
+  </div>
+</div>
+<div class="board">
+  <div class="newPoster" (click)="addCard()">
+    <div class="addCard">
+      Add Card
+    </div>
+  </div>
+  <div
+    class="card"
+    *ngFor="let post of posters"
+    [ngStyle]="{ background: post.color }"
+  >
+    <div class="owner">
+      {{ post.owner }}
+    </div>
+    <div class="message">
+      {{ post.message }}
+    </div>
+  </div>
+</div>
