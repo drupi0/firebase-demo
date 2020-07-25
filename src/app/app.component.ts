@@ -33,11 +33,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.logIn(false);
-    this.posters = this.storeService.retrievePosts().pipe(
-      tap((i) => {
-        console.log(i);
-      })
-    );
+    this.posters = this.storeService.retrievePosts();
   }
 
   logIn(triggerSignIn: boolean = true) {
