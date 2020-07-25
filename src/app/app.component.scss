@@ -10,8 +10,12 @@
     padding: 10px;
     margin: 5px;
     border-radius: 3px;
+    overflow-wrap: break-word;
     .owner {
       padding-bottom: 10px;
+      font-weight: 500;
+    }
+    .message {
       font-weight: 500;
       font-size: 2em;
     }

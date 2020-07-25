@@ -1,11 +1,11 @@
 <div class="menu">
   <div class="left">Freedom Board</div>
   <div>
-    <button>Log Out</button>
+    <button (click)="logIn()">{{ isLoggedIn ? 'Log Out' : 'Log In' }}</button>
   </div>
 </div>
 <div class="board">
-  <div class="newPoster" (click)="addCard()">
+  <div class="newPoster" (click)="addCard()" *ngIf="isLoggedIn">
     <div class="addCard">
       Add Card
     </div>
