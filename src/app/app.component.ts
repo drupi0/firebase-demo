@@ -1,8 +1,10 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
 import { User } from 'firebase';
-import { PostCard } from './store.service';
+import { StoreService } from './store.service';
+import { tap, finalize } from 'rxjs/operators';
+import { PostCard } from './posts.model';
 
 const RANDOMCOLOR = () =>
   ['#FF9AA2', '#FFB7B2', '#FFDAC1', '#E2F0CB', '#B5EAD7', '#C7CEEA'][
@@ -16,16 +18,26 @@ const RANDOMCOLOR = () =>
 })
 export class AppComponent implements OnInit, AfterViewInit {
   title = 'firebase-demo';
-  posters: PostCard[] = [];
+  posters: Observable<PostCard[]>;
   isLoggedIn = false;
   authState: Observable<User>;
+  currentUser: User;
+  message = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private storeService: StoreService
+  ) {}
 
   ngOnInit() {}
 
   ngAfterViewInit() {
     this.logIn(false);
+    this.posters = this.storeService.retrievePosts().pipe(
+      tap((i) => {
+        console.log(i);
+      })
+    );
   }
 
   logIn(triggerSignIn: boolean = true) {
@@ -33,6 +45,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.authService.retrieveAuthState(triggerSignIn).subscribe((user) => {
         if (user) {
           this.isLoggedIn = true;
+          this.currentUser = user;
         }
       });
     } else {
@@ -45,15 +58,27 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.authService.logOut();
   }
 
-  addCard() {
-    const newPost = {
-      owner: Math.random().toString(36).substring(7),
-      message: Math.random().toString(36),
-      timestamp: '1234',
-      color: RANDOMCOLOR(),
-    };
+  addCard(event: KeyboardEvent) {
+    if (
+      this.message.trim().length === 0 &&
+      event.key.toLowerCase() === 'enter'
+    ) {
+      event.preventDefault();
+      return;
+    }
 
-    this.posters.push(newPost);
-    this.posters.reverse();
+    if (this.message.trim().length >= 60) {
+      event.preventDefault();
+    }
+
+    if (event.key.toLowerCase() === 'enter') {
+      event.preventDefault();
+      this.storeService.createPost({
+        owner: this.currentUser.displayName || 'anon',
+        message: this.message.trim(),
+        color: RANDOMCOLOR(),
+      });
+      this.message = '';
+    }
   }
 }

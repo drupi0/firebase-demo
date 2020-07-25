@@ -1,34 +1,37 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+} from '@angular/fire/firestore';
 import { map, tap } from 'rxjs/operators';
-
-export interface PostCard {
-  owner: string;
-  message: string;
-  timestamp: string;
-  color: string;
-}
+import { Observable, from } from 'rxjs';
+import { PostCard } from './posts.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StoreService {
-  constructor(private angularFireStore: AngularFirestore) {}
+  readonly COLLECTION_NAME = 'posts';
+  private collection: AngularFirestoreCollection<PostCard>;
 
-  retrievePosts() {
-    return this.angularFireStore
-      .collection('posts')
-      .valueChanges()
-      .pipe(
-        tap((data: []) => {
-          console.log(data);
-        })
-      );
+  constructor(private angularFireStore: AngularFirestore) {
+    this.collection = this.angularFireStore.collection(this.COLLECTION_NAME);
   }
 
-  // createPost(post: PostCard) {
-  //   this.angularFireStore.collection.
-  // }
+  retrievePosts(): Observable<any[]> {
+    return this.collection
+      .valueChanges()
+      .pipe(map((postCards) => postCards.sort((a, b) => b.time - a.time)));
+  }
+
+  createPost(post: PostCard) {
+    return from(
+      this.collection.add({
+        ...post,
+        time: new Date().getTime(),
+      })
+    );
+  }
 
   deletePost() {}
 }
