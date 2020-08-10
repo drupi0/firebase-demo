@@ -9,10 +9,14 @@ import { Observable, of, from } from 'rxjs';
 export class AuthService {
   constructor(private authService: AngularFireAuth) {}
 
-  retrieveAuthState(triggerSignIn: boolean = false) {
+  retrieveAuthState(triggerSignIn: boolean = false, isAnon: boolean = false) {
     return this.authService.authState.pipe(
       switchMap((user) => {
-        return !user && triggerSignIn ? this.signInWithGoogle() : of(user);
+        return !user && triggerSignIn
+          ? !isAnon
+            ? this.signInWithGoogle()
+            : this.signInAnon()
+          : of(user);
       }),
       take(1)
     );
@@ -22,6 +26,12 @@ export class AuthService {
     return from(
       this.authService.signInWithPopup(new auth.GoogleAuthProvider())
     ).pipe(map((creds) => creds.user));
+  }
+
+  signInAnon() {
+    return from(this.authService.signInAnonymously()).pipe(
+      map((creds) => creds.user)
+    );
   }
 
   logOut() {

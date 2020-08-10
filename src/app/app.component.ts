@@ -11,6 +11,16 @@ const RANDOMCOLOR = () =>
     Math.floor(Math.random() * Math.floor(6))
   ];
 
+const RANDOMANIMAL = () =>
+  ['horse', 'cow', 'pig', 'panda', 'bear', 'dog', 'cat'][
+    Math.floor(Math.random() * Math.floor(7))
+  ];
+
+const RANDOMVERB = () =>
+  ['smart', 'pretty', 'mad', 'sexy', 'sleepy', 'lazy', 'sad'][
+    Math.floor(Math.random() * Math.floor(7))
+  ];
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -21,7 +31,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   posters: Observable<PostCard[]>;
   isLoggedIn = false;
   authState: Observable<User>;
-  currentUser: User;
+  currentUser: { displayName: string };
   message = '';
 
   constructor(
@@ -32,20 +42,27 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngOnInit() {}
 
   ngAfterViewInit() {
-    this.logIn(false);
+    this.logInAnon(false);
     this.posters = this.storeService.retrievePosts();
   }
 
-  logIn(triggerSignIn: boolean = true) {
+  logInAnon(triggerSignIn: boolean = true) {
     if (!this.isLoggedIn) {
-      this.authService.retrieveAuthState(triggerSignIn).subscribe((user) => {
-        if (user) {
-          this.isLoggedIn = true;
-          this.currentUser = user;
-        }
-      });
+      this.authService
+        .retrieveAuthState(triggerSignIn, true)
+        .subscribe((user) => {
+          if (user) {
+            this.isLoggedIn = true;
+            this.currentUser = {
+              displayName:
+                (user && user.displayName) ||
+                `${RANDOMVERB()}-${RANDOMANIMAL()}`,
+            };
+          }
+        });
     } else {
       this.isLoggedIn = false;
+      this.currentUser = null;
       this.logOut();
     }
   }
@@ -70,7 +87,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (event.key.toLowerCase() === 'enter') {
       event.preventDefault();
       this.storeService.createPost({
-        owner: this.currentUser.displayName || 'anon',
+        owner: this.currentUser.displayName,
         message: this.message.trim(),
         color: RANDOMCOLOR(),
       });

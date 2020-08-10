@@ -1,10 +1,12 @@
 <div class="menu">
-  <div class="left">Freedom Board</div>
+  <div class="left">Angular Cebu: Freedom Board</div>
   <div>
     <label *ngIf="currentUser"
       >You're logged in as <strong>{{ currentUser.displayName }}</strong></label
     >
-    <button (click)="logIn()">{{ isLoggedIn ? 'Log Out' : 'Log In' }}</button>
+    <button (click)="logInAnon()">
+      {{ isLoggedIn ? 'Log Out' : 'Log In Anonymously' }}
+    </button>
   </div>
 </div>
 <div class="board">
